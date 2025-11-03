@@ -9,10 +9,8 @@ const io = new Server(server);
 
 const port = process.env.PORT || 3000;
 
-// 静的ファイルを提供
 app.use(express.static(path.join(__dirname, "public")));
 
-// ★ルートアクセス時に tilt-start-game.html を返す
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "tilt-start-game.html"));
 });
