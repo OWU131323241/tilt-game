@@ -12,21 +12,26 @@
   <p id="status">待機中...</p>
 
   <script>
-    let socket = io.connect();
+    const socket = io();
+    const statusEl = document.getElementById("status");
 
-    document.getElementById("connect").addEventListener("click", () => {
-      socket.emit("join", "game");
+    document.getElementById("startBtn").addEventListener("click", () => {
+      statusEl.textContent = "送信中...";
 
-      if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      if (typeof DeviceMotionEvent.requestPermission === "function") {
         DeviceMotionEvent.requestPermission()
           .then(permissionState => {
-            if (permissionState === 'granted') {
+            if (permissionState === "granted") {
               window.addEventListener("deviceorientation", handleOrientation);
+              alert("傾き送信を開始しました");
+            } else {
+              alert("センサーの許可が必要です");
             }
           })
           .catch(console.error);
       } else {
         window.addEventListener("deviceorientation", handleOrientation);
+        alert("傾き送信を開始しました");
       }
     });
 
@@ -35,8 +40,8 @@
         g: e.gamma,
         b: e.beta
       });
+      console.log("送信:", e.gamma, e.beta);
     }
-
   </script>
 </body>
 </html>
