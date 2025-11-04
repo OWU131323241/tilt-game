@@ -19,7 +19,7 @@
 
   const btn = document.getElementById("startBtn");
   btn.addEventListener("click", async () => {
-    // iOS向けのセンサー許可
+    // iOS対策：センサー許可をリクエスト
     if (typeof DeviceMotionEvent.requestPermission === "function") {
       const response = await DeviceMotionEvent.requestPermission();
       if (response !== "granted") {
@@ -29,8 +29,8 @@
     }
 
     window.addEventListener("deviceorientation", (e) => {
-      const g = e.gamma || 0; // 左右傾き
-      const b = e.beta || 0;  // 前後傾き
+      const g = e.gamma || 0; // 左右
+      const b = e.beta || 0;  // 前後
       socket.emit("sensor", { g, b });
     });
 
@@ -40,3 +40,4 @@
   </script>
 </body>
 </html>
+
