@@ -9,22 +9,22 @@ const io = new Server(server);
 
 const port = process.env.PORT || 10000;
 
-// 静的ファイルをpublicから提供
+// public フォルダを静的ファイルとして扱う
 app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ tilt-game.html 用ルート
+// ✅ トップページでゲームHTMLを表示
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "tilt-start-game.html"));
+});
+
+// ✅ tilt-game.html でアクセスした場合も同じファイルを表示
 app.get("/tilt-game.html", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "tilt-start-game.html"));
 });
 
-// ✅ smart.html 用ルート（スマホ用ページ）
+// ✅ スマホ用ページ（もしあるなら）
 app.get("/smart.html", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "smart.html"));
-});
-
-// ✅ デフォルトルート
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "tilt-start-game.html"));
 });
 
 io.on("connection", (socket) => {
