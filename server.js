@@ -7,15 +7,25 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 
-// ルート("/")を最初に設定
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "tilt-start-game.html"));
+// publicフォルダを静的ファイルとして扱う
+app.use(express.static(path.join(__dirname, "public")));
+
+// ✅ tilt-game.html 用ルート
+app.get("/tilt-game.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "tilt-game.html"));
 });
 
-// それ以外の静的ファイルを扱う
-app.use(express.static(path.join(__dirname, "public")));
+// ✅ smart.html 用ルート
+app.get("/smart.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "smart.html"));
+});
+
+// ✅ デフォルト（何も指定しなかった場合は tilt-game.html）
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "tilt-game.html"));
+});
 
 io.on("connection", (socket) => {
   console.log("client connected:", socket.id);
@@ -23,11 +33,4 @@ io.on("connection", (socket) => {
 
 server.listen(port, () => {
   console.log(`Server running on port ${port}`);
-});
-io.on("connection", (socket) => {
-  console.log("client connected:", socket.id);
-
-  socket.on("sensor", (data) => {
-    io.emit("sensor", data); // 全クライアントに送信
-  });
 });
