@@ -2,59 +2,48 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>スマホ送信側</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js"></script>
-  <style>
-    body {
-      background: #111;
-      color: #fff;
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 100px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 20px;
-      margin-top: 20px;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>スマホ操作画面</title>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-  <h2>スマホの傾き送信ページ</h2>
-  <p>「許可して送信開始」を押すと、傾きデータを送ります。</p>
-  <button id="startBtn">許可して送信開始</button>
+  <h2>スマホの傾き送信</h2>
+  <button id="startBtn">傾き送信を開始</button>
+  <p id="status">待機中...</p>
 
   <script>
     const socket = io();
+    const statusEl = document.getElementById('status');
+    const startBtn = document.getElementById('startBtn');
 
-    const btn = document.getElementById("startBtn");
-    btn.addEventListener("click", async () => {
-      if (typeof DeviceOrientationEvent.requestPermission === "function") {
+    startBtn.addEventListener('click', async () => {
+      statusEl.textContent = "許可をリクエスト中...";
+
+      // iOS Safariなどで必要な許可処理
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
         try {
-          const permission = await DeviceOrientationEvent.requestPermission();
-          if (permission === "granted") {
-            startSending();
-          } else {
-            alert("傾きセンサーの許可が必要です。");
+          const response = await DeviceOrientationEvent.requestPermission();
+          if (response !== 'granted') {
+            alert('傾きセンサーの使用が許可されませんでした');
+            return;
           }
         } catch (e) {
-          alert("センサー許可エラー: " + e);
+          alert('エラー: ' + e);
+          return;
         }
-      } else {
-        // Androidなどは直接開始できる
-        startSending();
       }
-    });
 
-    function startSending() {
-      btn.disabled = true;
-      btn.innerText = "送信中...";
-      window.addEventListener("deviceorientation", (event) => {
-        const g = event.gamma || 0; // 左右
-        const b = event.beta || 0;  // 前後
-        socket.emit("sensor", { g, b });
+      statusEl.textContent = "傾きデータ送信中...";
+      window.addEventListener('deviceorientation', (event) => {
+        const data = {
+          alpha: event.alpha,
+          beta: event.beta,
+          gamma: event.gamma
+        };
+        socket.emit('tiltData', data);
+        statusEl.textContent = `送信中: β=${data.beta.toFixed(1)}, γ=${data.gamma.toFixed(1)}`;
       });
-    }
+    });
   </script>
 </body>
 </html>
