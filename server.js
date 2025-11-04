@@ -9,13 +9,13 @@ const io = new Server(server);
 
 const port = process.env.PORT || 3000;
 
-// publicフォルダを静的ファイルとして扱う
-app.use(express.static(path.join(__dirname, "public")));
-
-// 👇 これを追加（トップページを指定）
+// ルート("/")を最初に設定
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "tilt-start-game.html"));
 });
+
+// それ以外の静的ファイルを扱う
+app.use(express.static(path.join(__dirname, "public")));
 
 io.on("connection", (socket) => {
   console.log("client connected:", socket.id);
