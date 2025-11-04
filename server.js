@@ -24,3 +24,10 @@ io.on("connection", (socket) => {
 server.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+io.on("connection", (socket) => {
+  console.log("client connected:", socket.id);
+
+  socket.on("sensor", (data) => {
+    io.emit("sensor", data); // 全クライアントに送信
+  });
+});
