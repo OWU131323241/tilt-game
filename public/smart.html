@@ -12,7 +12,7 @@
   <p id="status">待機中...</p>
 
   <script>
-    const socket = io();
+    let socket = io.connect("https://tilt-game.onrender.com");
     const statusEl = document.getElementById('status');
     const startBtn = document.getElementById('startBtn');
 
