@@ -12,38 +12,31 @@
   <p id="status">待機中...</p>
 
   <script>
-    let socket = io.connect("https://tilt-game.onrender.com");
-    const statusEl = document.getElementById('status');
-    const startBtn = document.getElementById('startBtn');
+    let socket = io.connect();
 
-    startBtn.addEventListener('click', async () => {
-      statusEl.textContent = "許可をリクエスト中...";
+    document.getElementById("connect").addEventListener("click", () => {
+      socket.emit("join", "game");
 
-      // iOS Safariなどで必要な許可処理
-      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        try {
-          const response = await DeviceOrientationEvent.requestPermission();
-          if (response !== 'granted') {
-            alert('傾きセンサーの使用が許可されませんでした');
-            return;
-          }
-        } catch (e) {
-          alert('エラー: ' + e);
-          return;
-        }
+      if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+          .then(permissionState => {
+            if (permissionState === 'granted') {
+              window.addEventListener("deviceorientation", handleOrientation);
+            }
+          })
+          .catch(console.error);
+      } else {
+        window.addEventListener("deviceorientation", handleOrientation);
       }
-
-      statusEl.textContent = "傾きデータ送信中...";
-      window.addEventListener('deviceorientation', (event) => {
-        const data = {
-          alpha: event.alpha,
-          beta: event.beta,
-          gamma: event.gamma
-        };
-        socket.emit('tiltData', data);
-        statusEl.textContent = `送信中: β=${data.beta.toFixed(1)}, γ=${data.gamma.toFixed(1)}`;
-      });
     });
+
+    function handleOrientation(e) {
+      socket.emit("sensor", {
+        g: e.gamma,
+        b: e.beta
+      });
+    }
+
   </script>
 </body>
 </html>
