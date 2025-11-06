@@ -37,10 +37,8 @@ if (!myid) {
 }
 document.querySelector("#myid").innerText = myid;
 
-// ==== ★スマホの傾きセンサー送信部分★ ====
 function initSensor() {
   if (window.DeviceOrientationEvent) {
-    // iPhoneでは許可が必要
     if (typeof DeviceOrientationEvent.requestPermission === "function") {
       DeviceOrientationEvent.requestPermission()
         .then(response => {
@@ -52,7 +50,6 @@ function initSensor() {
         })
         .catch(console.error);
     } else {
-      // Androidなど
       window.addEventListener("deviceorientation", handleOrientation);
     }
   } else {
@@ -66,21 +63,18 @@ function handleOrientation(event) {
   socket.emit("sensor", { g: gamma, b: beta });
 }
 
-// ボタン押したらセンサー起動＆接続
 btn.addEventListener("click", () => {
   socket.emit("join", "game");
   btn.disabled = true;
   btn.innerText = "接続中...";
-  initSensor(); // ←★ここ重要
+  initSensor(); 
 });
 
-// ==== サーバーから受信して描画に使う ====
 socket.on("sensor", data => {
   g = parseFloat(data.g) || 0;
   b = parseFloat(data.b) || 0;
 });
 
-// ==== p5.js ゲーム部分 ====
 let state = "start";
 let shapes = ["square", "star", "heart", "uShape", "hex"];
 let stageIndex = 0;
